@@ -8,10 +8,9 @@ import android.os.Bundle;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 
-public class CreateContactActivity extends AppCompatActivity {
+import pt.ipbeja.pdm.contacts.database.ContactDatabase;
 
-    public static final String NAME_KEY = "name";
-    public static final String USERNAME_KEY = "username";
+public class CreateContactActivity extends AppCompatActivity {
 
     private TextInputEditText nameInput;
     private TextInputEditText instagramUserInput;
@@ -33,11 +32,11 @@ public class CreateContactActivity extends AppCompatActivity {
             String name = this.nameInput.getText().toString();
             String user = this.instagramUserInput.getText().toString();
 
-            Intent intent = new Intent();
-            intent.putExtra(NAME_KEY, name);
-            intent.putExtra(USERNAME_KEY, user);
+            Contact contact = new Contact(0, name, user);
+            ContactDatabase.getInstance(getApplicationContext())
+                    .contactDao()
+                    .insert(contact);
 
-            setResult(RESULT_OK, intent);
             finish();
         });
 

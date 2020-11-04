@@ -22,9 +22,10 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.util.ArrayList;
 import java.util.List;
 
+import pt.ipbeja.pdm.contacts.database.ContactDatabase;
+
 public class MainActivity extends AppCompatActivity {
 
-    private static final int CREATE_CONTACT_REQ_CODE = 1000;
 
     private RecyclerView contactList;
     private FloatingActionButton createContactBtn;
@@ -42,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
         this.createContactBtn = findViewById(R.id.create_contact_btn);
         this.createContactBtn.setOnClickListener(v -> {
             Intent intent = new Intent(this, CreateContactActivity.class);
-            startActivityForResult(intent, CREATE_CONTACT_REQ_CODE);
+            startActivity(intent);
         });
 
         this.adapter = new ContactAdapter();
@@ -50,29 +51,29 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        // Ver projeto Intents - https://github.com/diogopm-ipbeja/pdm_android_intents
-        if(requestCode == CREATE_CONTACT_REQ_CODE && resultCode == RESULT_OK) {
-            String name = data.getStringExtra(CreateContactActivity.NAME_KEY);
-            String username = data.getStringExtra(CreateContactActivity.USERNAME_KEY);
-            Log.i("ActivityResult", name + " --- " + username);
+    protected void onStart() {
+        super.onStart();
 
-            Contact contact = new Contact(name, username);
-            adapter.addContact(contact);
+        List<Contact> all = ContactDatabase.getInstance(getApplicationContext())
+                .contactDao()
+                .getAll();
+        adapter.setContacts(all);
 
-        }
-        else {
-            super.onActivityResult(requestCode, resultCode, data);
-        }
     }
-
 
     public class ContactAdapter extends RecyclerView.Adapter<ContactViewHolder> {
 
         // Ver https://github.com/diogopm-ipbeja/pdm_android_lists
 
         private List<Contact> data = new ArrayList<>();
+
+
+        public void setContacts(List<Contact> contacts) {
+            this.data = contacts;
+            notifyDataSetChanged();
+        }
 
         public void addContact(Contact c) {
             this.data.add(c);
@@ -100,6 +101,7 @@ public class MainActivity extends AppCompatActivity {
         public int getItemCount() {
             return data.size();
         }
+
 
     }
 
